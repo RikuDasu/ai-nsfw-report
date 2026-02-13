@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI生成NSFWコンテンツ 技術パイプライン調査 2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #08080d;
+    --bg-card: #0f0f16;
+    --bg-card-alt: #14141d;
+    --bg-hover: #1a1a25;
+    --border: rgba(255,255,255,0.06);
+    --border-accent: rgba(99,102,241,0.3);
+    --text: #e4e4ee;
+    --text-dim: #8585a0;
+    --text-muted: #505068;
+    --indigo: #6366f1;
+    --violet: #8b5cf6;
+    --cyan: #06b6d4;
+    --emerald: #10b981;
+    --amber: #f59e0b;
+    --rose: #f43f5e;
+    --sky: #38bdf8;
+    --grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+    --grad-warm: linear-gradient(135deg, #f43f5e, #f59e0b);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter','Noto Sans JP',system-ui,sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 12.5px;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: linear-gradient(90deg, rgba(99,102,241,0.07), rgba(139,92,246,0.07));
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .header-bar .title {
+    font-size: 14px;
+    font-weight: 700;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .header-bar .sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 8px;
+  }
+  .kpi-row {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .kpi {
+    padding: 5px 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .kpi .v { font-size: 15px; font-weight: 800; }
+  .kpi .l { font-size: 9px; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .kpi:nth-child(1) .v { color: var(--amber); }
+  .kpi:nth-child(2) .v { color: var(--emerald); }
+  .kpi:nth-child(3) .v { color: var(--rose); }
+  .kpi:nth-child(4) .v { color: var(--cyan); }
+
+  /* TAB BAR */
+  .tab-bar {
+    display: flex;
+    padding: 0 6px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-bar::-webkit-scrollbar { height: 2px; }
+  .tab-bar::-webkit-scrollbar-thumb { background: var(--border); }
+  .tab-btn {
+    padding: 9px 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text-dim); background: var(--bg-hover); }
+  .tab-btn.active {
+    color: var(--indigo);
+    border-bottom-color: var(--indigo);
+    background: rgba(99,102,241,0.05);
+  }
+
+  /* CONTENT */
+  .tab-content { display: none; padding: 10px; }
+  .tab-content.active { display: block; }
+
+  .grid { display: grid; gap: 8px; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g-wide { grid-template-columns: 2fr 1fr; }
+  .g-auto { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+  @media (max-width: 900px) {
+    .g2, .g3, .g4, .g-wide { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    overflow: hidden;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* TABLES */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  th {
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card-alt);
+    position: sticky;
+    top: 0;
+  }
+  td {
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--text-dim);
+  }
+  tr:hover td { background: rgba(99,102,241,0.03); }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 600;
+  }
+  .tag-indigo { background: rgba(99,102,241,0.15); color: var(--indigo); }
+  .tag-emerald { background: rgba(16,185,129,0.15); color: var(--emerald); }
+  .tag-rose { background: rgba(244,63,94,0.15); color: var(--rose); }
+  .tag-amber { background: rgba(245,158,11,0.15); color: var(--amber); }
+  .tag-cyan { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .tag-violet { background: rgba(139,92,246,0.15); color: var(--violet); }
+
+  /* FLOW */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    padding: 8px 0;
+  }
+  .flow-node {
+    padding: 6px 10px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 500;
+    text-align: center;
+    min-width: 70px;
+  }
+  .flow-arrow {
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .flow-node.highlight {
+    border-color: var(--indigo);
+    background: rgba(99,102,241,0.08);
+    color: var(--indigo);
+  }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0c0c14;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-dim);
+    overflow-x: auto;
+    line-height: 1.6;
+    white-space: pre;
+  }
+  .code-block .cm { color: var(--text-muted); }
+  .code-block .kw { color: var(--indigo); }
+  .code-block .str { color: var(--emerald); }
+  .code-block .num { color: var(--amber); }
+
+  /* STAT PILL */
+  .stat-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 6px 0;
+  }
+  .stat-pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    font-size: 10px;
+  }
+  .stat-pill .sp-v {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  .stat-pill .sp-l { color: var(--text-muted); }
+
+  /* PROSE */
+  .prose {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .prose p { margin-bottom: 6px; }
+  .prose strong { color: var(--text); font-weight: 600; }
+  .prose .hl { color: var(--indigo); font-weight: 500; }
+
+  /* CHART */
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    max-height: 220px;
+  }
+  .chart-wrap canvas { max-height: 220px; }
+
+  /* SECTION TITLE IN TAB */
+  .sec-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 12px 0 6px;
+    padding-left: 8px;
+    border-left: 3px solid var(--indigo);
+  }
+  .sec-title:first-child { margin-top: 0; }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 18px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    padding: 6px 0 10px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--indigo);
+    border: 2px solid var(--bg);
+  }
+  .tl-date {
+    font-size: 9px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .tl-text {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    margin: 12px 0 0;
+    padding: 8px 12px;
+    background: rgba(244,63,94,0.06);
+    border: 1px solid rgba(244,63,94,0.15);
+    border-radius: 5px;
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: var(--rose); }
+
+  .mt-8 { margin-top: 8px; }
+  .mb-4 { margin-bottom: 4px; }
+  .span-2 { grid-column: span 2; }
+
+  @media (max-width: 900px) {
+    .span-2 { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header-bar">
+  <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap">
+    <span class="title">AI-NSFW Technical Pipeline Dashboard</span>
+    <span class="sub">AI生成NSFWコンテンツ技術調査 2025</span>
+  </div>
+  <div class="kpi-row">
+    <div class="kpi"><div class="v">$455億</div><div class="l">デジタルアダルト市場 2024</div></div>
+    <div class="kpi"><div class="v">80%</div><div class="l">AI活用コンテンツ制作率</div></div>
+    <div class="kpi"><div class="v">3件+</div><div class="l">日本AI逮捕事例 2025</div></div>
+    <div class="kpi"><div class="v">50億+</div><div class="l">LAION学習画像数</div></div>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview')">概要</button>
+  <button class="tab-btn" onclick="switchTab('models')">生成モデル</button>
+  <button class="tab-btn" onclick="switchTab('pipeline')">技術パイプライン</button>
+  <button class="tab-btn" onclick="switchTab('lora')">LoRA技術</button>
+  <button class="tab-btn" onclick="switchTab('demosaic')">モザイク除去</button>
+  <button class="tab-btn" onclick="switchTab('video')">動画生成</button>
+  <button class="tab-btn" onclick="switchTab('platform')">プラットフォーム</button>
+  <button class="tab-btn" onclick="switchTab('legal')">法規制・逮捕事例</button>
+</div>
+
+<!-- ==================== TAB: 概要 ==================== -->
+<div id="tab-overview" class="tab-content active">
+  <div class="sec-title">なぜAI生成「無修正」コンテンツが可能なのか</div>
+  <div class="grid g-wide mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>構造的要因分析</div>
+      <div class="prose">
+        <p><strong>1. オープンソースモデルのローカル実行</strong><br>
+        Stable Diffusionを筆頭とする画像生成AIはオープンソースで公開されており、ユーザーのローカルPC上で完全に制御可能。クラウドAPIと異なり<span class="hl">安全フィルター（Safety Checker）を物理的に除去</span>できるため、出力に制限がない。</p>
+        <p><strong>2. 学習データの特性</strong><br>
+        SD 1.5はLAION-5B（約50億画像）から学習。このデータセットにはNSFWフィルタリングが不完全な画像が含まれており、モデルは元から無修正画像の生成能力を持つ。さらにコミュニティが<span class="hl">明示的に無修正データセットでファインチューニング</span>したチェックポイントが数百種類存在。</p>
+        <p><strong>3. LoRAによる制限解除メカニズム</strong><br>
+        Flux等の制限付きモデルでも、LoRA（Low-Rank Adaptation）と呼ばれる軽量な追加学習により安全フィルターの挙動を上書きできる。全パラメータの0.1-1%を変更するだけで、<span class="hl">数MB〜数十MBのファイルでモデルの出力傾向を根本的に変更</span>可能。</p>
+        <p><strong>4. モザイク除去AIの並行進化</strong><br>
+        既存の修正済みコンテンツからモザイク/検閲領域を自動検出し、GAN（敵対的生成ネットワーク）で「推定復元」するツールが複数存在。これは厳密には「復元」ではなく「もっともらしい画像の生成」だが、視覚的に説得力のある結果を出力。</p>
+      </div>
+    </div>
+    <div>
+      <div class="card mb-4">
+        <div class="card-title"><span class="dot" style="background:var(--amber)"></span>技術パイプライン全体像</div>
+        <div class="flow">
+          <div class="flow-node">テキストプロンプト</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node highlight">チェックポイント<br><small>+LoRA</small></div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node">Txt2Img</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node">Img2Img</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node highlight">Inpainting</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node">Upscale</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node" style="border-color:var(--emerald)">最終出力</div>
+        </div>
+      </div>
+      <div class="card mb-4">
+        <div class="card-title"><span class="dot" style="background:var(--rose)"></span>市場データ</div>
+        <div class="stat-pills">
+          <div class="stat-pill"><span class="sp-v" style="color:var(--amber)">$455億</span><span class="sp-l">デジタルアダルト市場 2024</span></div>
+          <div class="stat-pill"><span class="sp-v" style="color:var(--emerald)">$788億</span><span class="sp-l">予測 2032</span></div>
+          <div class="stat-pill"><span class="sp-v" style="color:var(--cyan)">7.1%</span><span class="sp-l">CAGR</span></div>
+          <div class="stat-pill"><span class="sp-v" style="color:var(--rose)">25%</span><span class="sp-l">AI制作コスト削減率</span></div>
+          <div class="stat-pill"><span class="sp-v" style="color:var(--violet)">62%</span><span class="sp-l">AI検索精度向上</span></div>
+          <div class="stat-pill"><span class="sp-v" style="color:var(--amber)">58%</span><span class="sp-l">Patreon NSFWクリエイター比率</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>SDモデル系譜</div>
+        <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">エコシステム構造</div>
+  <div class="grid g3 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>モデル層</div>
+      <table>
+        <tr><th>要素</th><th>役割</th></tr>
+        <tr><td>チェックポイント</td><td>基盤モデル（SD1.5, SDXL, Flux）</td></tr>
+        <tr><td>LoRA</td><td>軽量追加学習（スタイル/キャラ/制限解除）</td></tr>
+        <tr><td>VAE</td><td>画像品質の調整</td></tr>
+        <tr><td>Embedding</td><td>概念の追加（Textual Inversion）</td></tr>
+        <tr><td>ControlNet</td><td>ポーズ/構図/深度の制御</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>ツール層</div>
+      <table>
+        <tr><th>ツール</th><th>特徴</th></tr>
+        <tr><td>AUTOMATIC1111</td><td>最も普及、拡張機能豊富</td></tr>
+        <tr><td>ComfyUI</td><td>ノードベース、高い柔軟性</td></tr>
+        <tr><td>Kohya_ss</td><td>LoRA学習特化</td></tr>
+        <tr><td>WD14 Tagger</td><td>自動タグ付け</td></tr>
+        <tr><td>Lama Cleaner</td><td>画像修復/除去</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>配布層</div>
+      <table>
+        <tr><th>プラットフォーム</th><th>役割</th></tr>
+        <tr><td>CivitAI</td><td>モデル/LoRA最大ハブ</td></tr>
+        <tr><td>HuggingFace</td><td>MLモデル汎用ホスティング</td></tr>
+        <tr><td>Tensor.Art</td><td>CivitAI代替</td></tr>
+        <tr><td>Patreon</td><td>クリエイター収益化</td></tr>
+        <tr><td>暗号通貨</td><td>匿名決済</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>注意:</strong> 本レポートは学術的な技術分析を目的としています。AI生成コンテンツの不正利用は各国法規制の対象となります。日本では刑法175条により、AI生成であってもわいせつ物の頒布は犯罪です。実在人物のディープフェイクは名誉毀損・肖像権侵害に該当し得ます。
+  </div>
+</div>
+
+<!-- ==================== TAB: 生成モデル ==================== -->
+<div id="tab-models" class="tab-content">
+  <div class="sec-title">画像生成モデルの系譜と比較</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>Stable Diffusion系モデル進化</div>
+      <table>
+        <tr><th>モデル</th><th>リリース</th><th>アーキテクチャ</th><th>解像度</th><th>NSFW対応</th><th>エコシステム成熟度</th><th>備考</th></tr>
+        <tr>
+          <td><strong>SD 1.5</strong></td><td>2022/10</td><td>U-Net + CLIP</td><td>512x512</td>
+          <td><span class="tag tag-emerald">最も成熟</span></td>
+          <td><span class="tag tag-emerald">★★★★★</span></td>
+          <td>LAION-5Bから学習。NSFW LoRA/チェックポイント最多</td>
+        </tr>
+        <tr>
+          <td><strong>SDXL</strong></td><td>2023/07</td><td>U-Net + dual CLIP</td><td>1024x1024</td>
+          <td><span class="tag tag-emerald">充実</span></td>
+          <td><span class="tag tag-emerald">★★★★</span></td>
+          <td>高解像度化。リファイナーモデル搭載。SD1.5から移行進行中</td>
+        </tr>
+        <tr>
+          <td><strong>SDXL Turbo</strong></td><td>2023/11</td><td>Adversarial Diffusion Distillation</td><td>512x512</td>
+          <td><span class="tag tag-amber">限定的</span></td>
+          <td><span class="tag tag-amber">★★★</span></td>
+          <td>1-4ステップ高速生成。リアルタイムに近い</td>
+        </tr>
+        <tr>
+          <td><strong>LCM</strong></td><td>2023/10</td><td>Latent Consistency</td><td>可変</td>
+          <td><span class="tag tag-amber">モデル依存</span></td>
+          <td><span class="tag tag-amber">★★★</span></td>
+          <td>少ステップ生成。LoRAとして適用可能</td>
+        </tr>
+        <tr>
+          <td><strong>SD3/3.5</strong></td><td>2024/06</td><td>MMDiT (Multi-Modal DiT)</td><td>可変</td>
+          <td><span class="tag tag-rose">制限付き</span></td>
+          <td><span class="tag tag-rose">★★</span></td>
+          <td>Stability AIがNSFW禁止。CivitAIからもR+生成不可</td>
+        </tr>
+        <tr>
+          <td><strong>Flux.1</strong></td><td>2024/08</td><td>Rectified Flow Transformer</td><td>可変</td>
+          <td><span class="tag tag-amber">LoRAで解除</span></td>
+          <td><span class="tag tag-emerald">★★★★</span></td>
+          <td>Black Forest Labs開発。高品質。コミュニティLoRAで制限解除</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">フォトリアルチェックポイント Top 10</div>
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>SDXL系</div>
+      <table>
+        <tr><th>モデル</th><th>DL数</th><th>特徴</th><th>NSFW</th></tr>
+        <tr><td>Juggernaut XL</td><td>520K+</td><td>汎用フォトリアル最強</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>RealVisXL V4.0</td><td>300K+</td><td>フォトリアル特化</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>epiCRealism XL</td><td>200K+</td><td>超リアル人物</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>DreamShaper XL</td><td>250K+</td><td>アート/リアル両対応</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>WAI-illustrious</td><td>150K+</td><td>イラスト/2D特化</td><td><span class="tag tag-emerald">対応</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>SD 1.5系</div>
+      <table>
+        <tr><th>モデル</th><th>DL数</th><th>特徴</th><th>NSFW</th></tr>
+        <tr><td>Realistic Vision V5.1</td><td>400K+</td><td>SD1.5最高峰リアル系</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>CyberRealistic</td><td>350K+</td><td>写実性/スタイルバランス</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>AbsoluteReality</td><td>280K+</td><td>自然な写真品質</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>ChilloutMix</td><td>200K+</td><td>アジア人特化</td><td><span class="tag tag-emerald">対応</span></td></tr>
+        <tr><td>MeinaHentai</td><td>180K+</td><td>アニメ/NSFW特化</td><td><span class="tag tag-emerald">対応</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">なぜ特定モデルがNSFW生成可能なのか</div>
+  <div class="grid g3 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>学習データ起因</div>
+      <div class="prose">
+        <p>SD 1.5のベースデータセットLAION-5Bには約<strong>50億画像</strong>が含まれ、そのNSFWフィルタリングは不完全。モデルは明示的な画像の生成パターンを暗黙的に学習済み。</p>
+        <p>コミュニティプロジェクト（Unstable Diffusion等）は<span class="hl">3000万枚以上</span>の明示的NSFWデータセットを構築し、チェックポイントのマージ/ファインチューニングに使用。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>Safety Checker 除去</div>
+      <div class="prose">
+        <p>公式SDにはSafety Checkerが搭載されているが、これは<strong>モデル外部の後処理フィルター</strong>であり、モデル自体にNSFW抑制は組み込まれていない。</p>
+        <p>AUTOMATIC1111等のローカルUIは<span class="hl">Safety Checkerをデフォルトで無効化</span>。コード上で削除するだけで全制限が解除される。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>マージ/ファインチューニング</div>
+      <div class="prose">
+        <p>複数チェックポイントの「マージ」により、あるモデルのNSFW能力と別モデルの品質を組み合わせる技法が一般的。</p>
+        <p>DreamBooth/LoRAによる<span class="hl">追加学習で特定のスタイルや人物を学習</span>させ、無修正の出力品質を向上させる。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: 技術パイプライン ==================== -->
+<div id="tab-pipeline" class="tab-content">
+  <div class="sec-title">完全技術ワークフロー</div>
+
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>Step 1: 環境構築</div>
+      <div class="code-block"><span class="cm"># 必要環境</span>
+<span class="kw">Python</span> <span class="num">3.10.6</span>          <span class="cm"># 推奨バージョン</span>
+<span class="kw">Git</span>                     <span class="cm"># バージョン管理</span>
+<span class="kw">CUDA</span> <span class="num">11.8+</span>             <span class="cm"># NVIDIA GPU用</span>
+<span class="kw">VRAM</span> <span class="num">6GB</span> 最低 / <span class="num">12GB+</span> 推奨
+
+<span class="cm"># AUTOMATIC1111 WebUI インストール</span>
+<span class="kw">git clone</span> <span class="str">https://github.com/AUTOMATIC1111/stable-diffusion-webui</span>
+<span class="kw">cd</span> stable-diffusion-webui
+<span class="cm"># Windows: webui-user.bat 実行</span>
+<span class="cm"># Linux/Mac: ./webui.sh</span>
+
+<span class="cm"># ComfyUI インストール（代替）</span>
+<span class="kw">git clone</span> <span class="str">https://github.com/comfyanonymous/ComfyUI</span>
+<span class="kw">pip install</span> -r requirements.txt
+<span class="kw">python</span> main.py</div>
+    </div>
+  </div>
+
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>Step 2: モデル配置</div>
+      <div class="code-block"><span class="cm"># ディレクトリ構成</span>
+stable-diffusion-webui/
+├── models/
+│   ├── Stable-diffusion/  <span class="cm"># チェックポイント (.safetensors)</span>
+│   │   └── <span class="str">realvisxlV40.safetensors</span>
+│   ├── Lora/              <span class="cm"># LoRAファイル</span>
+│   │   └── <span class="str">detail-tweaker-xl.safetensors</span>
+│   ├── VAE/               <span class="cm"># VAEファイル</span>
+│   │   └── <span class="str">sdxl_vae.safetensors</span>
+│   └── ControlNet/        <span class="cm"># ControlNetモデル</span>
+│       └── <span class="str">control_v11p_sd15_openpose.pth</span>
+└── extensions/            <span class="cm"># 拡張機能</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>Step 3: 推奨パラメータ</div>
+      <table>
+        <tr><th>パラメータ</th><th>リアル系</th><th>アニメ系</th></tr>
+        <tr><td>Sampler</td><td>DPM++ 2M Karras</td><td>Euler a</td></tr>
+        <tr><td>Steps</td><td>25-40</td><td>20-30</td></tr>
+        <tr><td>CFG Scale</td><td>5-7</td><td>7-9</td></tr>
+        <tr><td>CLIP Skip</td><td>1</td><td>2</td></tr>
+        <tr><td>Denoising (Img2Img)</td><td>0.3-0.5</td><td>0.4-0.6</td></tr>
+        <tr><td>Denoising (Inpaint)</td><td>0.4-0.7</td><td>0.5-0.8</td></tr>
+        <tr><td>解像度 (SDXL)</td><td>1024x1024</td><td>1024x1024</td></tr>
+        <tr><td>解像度 (SD1.5)</td><td>512x768</td><td>512x768</td></tr>
+        <tr><td>Hires Fix</td><td>有効 (2x)</td><td>有効 (2x)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">Inpainting ワークフロー詳細</div>
+  <div class="grid g-wide mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>Inpainting の仕組みと手順</div>
+      <div class="prose">
+        <p><strong>原理:</strong> 画像の指定領域（マスク）にのみランダムノイズを付加し、テキストプロンプトに基づいて再生成する技術。マスク外の領域は保持される。</p>
+        <p><strong>手順:</strong></p>
+        <p>1. 元画像をImg2Imgタブの「Inpaint」に読み込み</p>
+        <p>2. 再生成したい領域を<span class="hl">白でマスク</span>（ブラシツールで描画）</p>
+        <p>3. プロンプトに生成内容を記述（例: 特定の衣服、肌の質感等）</p>
+        <p>4. <strong>Denoising Strength</strong>を調整: <span class="hl">0.4-0.7</span>が最適範囲</p>
+        <p>5. 「Inpaint area: Only masked」で高精細化</p>
+        <p>6. 結果確認 → 不満足なら再度マスク調整して繰り返し</p>
+      </div>
+      <div class="flow mt-8">
+        <div class="flow-node">元画像</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">マスク描画</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">プロンプト入力</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">ノイズ付加<br>(マスク内のみ)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">逆拡散<br>(デノイズ)</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node" style="border-color:var(--emerald)">合成出力</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>Denoising Strength 影響</div>
+      <div class="chart-wrap"><canvas id="chart-denoise"></canvas></div>
+      <div class="prose mt-8">
+        <p style="font-size:10px">低(0.1-0.3): ほぼ変化なし<br>
+        中(0.4-0.6): 自然な変更<br>
+        高(0.7-0.9): 大きな変更、不整合リスク</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">ControlNet 統合</div>
+  <div class="grid g4 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>OpenPose</div>
+      <div class="prose"><p>人体の関節位置を指定し、<strong>ポーズを正確に制御</strong>。棒人間からリアルな人物を生成。</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>Depth</div>
+      <div class="prose"><p>深度マップから奥行きを制御。<strong>構図の3D的整合性</strong>を維持。</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>Canny / Lineart</div>
+      <div class="prose"><p>輪郭線を維持したまま内容を変更。<strong>形状を保持した再生成</strong>に最適。</p></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>IP-Adapter</div>
+      <div class="prose"><p>参照画像のスタイル/構図を転送。<strong>顔の一貫性保持</strong>にも活用。</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: LoRA技術 ==================== -->
+<div id="tab-lora" class="tab-content">
+  <div class="sec-title">LoRA (Low-Rank Adaptation) 技術詳解</div>
+
+  <div class="grid g-wide mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>技術的仕組み</div>
+      <div class="prose">
+        <p><strong>原理:</strong> 大規模モデルの重み行列 W を直接更新する代わりに、低ランクの分解行列 <span class="hl">W + BA</span>（B: d×r, A: r×k, r << min(d,k)）を追加学習。全パラメータの<strong>0.1-1%</strong>のみを学習するため、メモリ効率が極めて高い。</p>
+        <p><strong>直感的理解:</strong> 数十GBのモデル全体を再学習せず、数MB〜数十MBの「パッチ」を当てるイメージ。複数のLoRAを同時に適用可能（スタイルLoRA + キャラLoRA + 制限解除LoRA等）。</p>
+        <p><strong>NSFW文脈での意義:</strong> Flux等のベースモデルは安全フィルターが組み込まれているが、LoRAによりフィルター部分の重みを上書きし、<span class="hl">制限を解除</span>できる。これが「Uncensored LoRA」の仕組み。</p>
+      </div>
+      <div class="flow mt-8">
+        <div class="flow-node">ベースモデル<br><small>制限あり</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">LoRA重み<br><small>BA行列</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">W + BA<br><small>結合</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node" style="border-color:var(--emerald)">制限解除<br>モデル</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>フルFT vs LoRA 比較</div>
+      <div class="chart-wrap"><canvas id="chart-lora-compare"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">Kohya_ss での学習手順</div>
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>推奨学習パラメータ</div>
+      <table>
+        <tr><th>パラメータ</th><th>SD1.5</th><th>SDXL</th><th>Flux</th></tr>
+        <tr><td>Learning Rate (UNet)</td><td>1e-4</td><td>1e-4</td><td>1e-4</td></tr>
+        <tr><td>Learning Rate (TE)</td><td>5e-5</td><td>5e-5</td><td>N/A</td></tr>
+        <tr><td>Epochs</td><td>10-30</td><td>10-20</td><td>10-15</td></tr>
+        <tr><td>Batch Size</td><td>2-4</td><td>1-2</td><td>1</td></tr>
+        <tr><td>Network Rank</td><td>32-128</td><td>32-128</td><td>16-64</td></tr>
+        <tr><td>Network Alpha</td><td>16-64</td><td>16-64</td><td>8-32</td></tr>
+        <tr><td>Optimizer</td><td>AdamW8bit</td><td>AdamW8bit</td><td>Prodigy</td></tr>
+        <tr><td>Scheduler</td><td>cosine</td><td>cosine</td><td>constant</td></tr>
+        <tr><td>Resolution</td><td>512</td><td>1024</td><td>1024</td></tr>
+        <tr><td>VRAM必要量</td><td>~8GB</td><td>~12GB</td><td>~16GB</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>学習ワークフロー</div>
+      <div class="code-block"><span class="cm"># Step 1: 学習画像の準備</span>
+<span class="cm"># 50-100枚以上、多様なポーズ/角度/照明</span>
+
+<span class="cm"># Step 2: 自動タグ付け</span>
+<span class="kw">python</span> tag_images.py \
+  --model <span class="str">wd14-vit-v2</span> \
+  --dir <span class="str">./train_data</span> \
+  --thresh <span class="num">0.35</span>
+
+<span class="cm"># Step 3: ディレクトリ構成</span>
+train_data/
+├── <span class="num">10</span>_<span class="str">concept_name</span>/    <span class="cm"># 繰り返し数_概念名</span>
+│   ├── img001.png
+│   ├── img001.txt      <span class="cm"># タグファイル</span>
+│   └── ...
+└── <span class="num">1</span>_<span class="str">regularization</span>/  <span class="cm"># 正則化画像（過学習防止）</span>
+    └── ...
+
+<span class="cm"># Step 4: Kohya_ss GUIで学習設定</span>
+<span class="cm"># → 上記パラメータ表を参照</span>
+
+<span class="cm"># Step 5: 学習実行</span>
+<span class="cm"># RTX 3090: SD1.5 ~2h, SDXL ~4h, Flux ~6h</span>
+
+<span class="cm"># Step 6: 出力</span>
+<span class="cm"># → .safetensors ファイル (10-200MB)</span></div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">Uncensored LoRA 実例</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>主要 Uncensored LoRA 一覧</div>
+      <table>
+        <tr><th>名称</th><th>ベースモデル</th><th>ホスト</th><th>サイズ</th><th>方式</th><th>使用方法</th></tr>
+        <tr>
+          <td>Flux-uncensored (enhanceaiteam)</td><td>Flux.1-dev</td><td>HuggingFace</td>
+          <td>~50MB</td><td>LoRA重み上書き</td>
+          <td><code>&lt;lora:flux-uncensored:0.8&gt;</code></td>
+        </tr>
+        <tr>
+          <td>Flux-Uncensored-V2</td><td>Flux.1-dev</td><td>HuggingFace</td>
+          <td>~50MB</td><td>改良版LoRA</td>
+          <td><code>&lt;lora:flux-uncensored-v2:0.8&gt;</code></td>
+        </tr>
+        <tr>
+          <td>Flux Lustly.ai Uncensored</td><td>Flux</td><td>CivitAI</td>
+          <td>~40MB</td><td>男女ヌード対応</td>
+          <td><code>&lt;lora:lustly-uncensored:0.7&gt;</code></td>
+        </tr>
+        <tr>
+          <td>Flux NSFW LoRA v2</td><td>Flux</td><td>CivitAI</td>
+          <td>~35MB</td><td>NSFW特化</td>
+          <td><code>&lt;lora:flux-nsfw-v2:0.8&gt;</code></td>
+        </tr>
+        <tr>
+          <td>各種SD1.5/SDXL NSFW Checkpoint</td><td>SD1.5/SDXL</td><td>CivitAI</td>
+          <td>2-7GB</td><td>フルチェックポイント</td>
+          <td>モデル選択のみ（LoRA不要）</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: モザイク除去 ==================== -->
+<div id="tab-demosaic" class="tab-content">
+  <div class="sec-title">AIモザイク除去技術</div>
+  <div class="grid g-wide mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>技術的仕組み</div>
+      <div class="prose">
+        <p><strong>重要な前提:</strong> AIモザイク除去は「復元」ではなく「<span class="hl">推定生成</span>」。元の画像情報はモザイク処理で不可逆的に失われており、AIは文脈から「もっともらしい画像」を生成しているに過ぎない。</p>
+        <p><strong>処理パイプライン:</strong></p>
+        <p>1. <strong>検出フェーズ</strong>: 物体検出モデル（YOLO, Mask R-CNN等）でモザイク/検閲領域を自動識別</p>
+        <p>2. <strong>セグメンテーション</strong>: 検出領域のピクセルレベルマスクを生成</p>
+        <p>3. <strong>復元フェーズ</strong>: GAN（Generative Adversarial Network）による画像生成。Generator が「本物らしい」画像を生成し、Discriminator が真贋を判定する敵対的学習により品質を向上</p>
+        <p>4. <strong>後処理</strong>: 境界のブレンディング、色調整、ノイズ除去</p>
+      </div>
+      <div class="flow mt-8">
+        <div class="flow-node">入力画像<br><small>(モザイク付き)</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">領域検出<br><small>YOLO/R-CNN</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">マスク生成</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">GAN復元<br><small>Pix2Pix/LaMa</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">境界処理</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node" style="border-color:var(--emerald)">出力</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>ツール比較</div>
+      <div class="chart-wrap"><canvas id="chart-demosaic"></canvas></div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">主要ツール詳細</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <table>
+        <tr><th>ツール</th><th>技術基盤</th><th>対象</th><th>入力</th><th>特徴</th><th>リポジトリ</th></tr>
+        <tr>
+          <td><strong>DeepMosaics</strong></td>
+          <td>Pix2Pix系GAN</td>
+          <td>実写画像/動画</td>
+          <td>モザイク付き画像・動画</td>
+          <td>自動モザイク検出、バッチ処理対応、GPU高速化</td>
+          <td>GitHub: HypoX64/DeepMosaics</td>
+        </tr>
+        <tr>
+          <td><strong>hent-ai</strong></td>
+          <td>Mask R-CNN + GAN</td>
+          <td>二次元/イラスト</td>
+          <td>検閲バー付きイラスト</td>
+          <td>検閲バー・モザイク両対応、検出精度が高い</td>
+          <td>GitHub: natethegreate/hent-ai</td>
+        </tr>
+        <tr>
+          <td><strong>JavPlayer</strong></td>
+          <td>TecoGAN</td>
+          <td>実写動画特化</td>
+          <td>モザイク付き動画</td>
+          <td>リアルタイム処理、動画フレーム補間、商用ソフト</td>
+          <td>商用（有料）</td>
+        </tr>
+        <tr>
+          <td><strong>Lama Cleaner</strong></td>
+          <td>LaMa (Large Mask Inpainting)</td>
+          <td>汎用</td>
+          <td>任意のマスク付き画像</td>
+          <td>汎用修復ツール、モザイク除去にも転用可能</td>
+          <td>GitHub: Sanster/lama-cleaner</td>
+        </tr>
+        <tr>
+          <td><strong>SD Inpainting</strong></td>
+          <td>Stable Diffusion</td>
+          <td>汎用</td>
+          <td>マスク指定画像</td>
+          <td>テキストプロンプト指定可能、最も高品質な結果</td>
+          <td>AUTOMATIC1111 / ComfyUI内蔵</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g3 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>DeepMosaics導入</div>
+      <div class="code-block"><span class="kw">git clone</span> <span class="str">https://github.com/
+  HypoX64/DeepMosaics</span>
+<span class="kw">pip install</span> -r requirements.txt
+
+<span class="cm"># 事前学習モデルDL</span>
+<span class="cm"># → pretrained_models/ に配置</span>
+
+<span class="cm"># 実行</span>
+<span class="kw">python</span> deepmosaic.py \
+  --media_path <span class="str">input.mp4</span> \
+  --model_path <span class="str">pretrained/</span> \
+  --gpu_id <span class="num">0</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>hent-ai導入</div>
+      <div class="code-block"><span class="kw">git clone</span> <span class="str">https://github.com/
+  natethegreate/hent-ai</span>
+<span class="kw">pip install</span> -r requirements.txt
+
+<span class="cm"># Mask R-CNNモデルDL</span>
+<span class="cm"># → weights/ に配置</span>
+
+<span class="cm"># 実行</span>
+<span class="kw">python</span> main.py \
+  --input_dir <span class="str">./images</span> \
+  --output_dir <span class="str">./output</span> \
+  --detect_type <span class="str">mosaic</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>SD Inpainting法</div>
+      <div class="code-block"><span class="cm"># AUTOMATIC1111で</span>
+
+<span class="num">1.</span> Img2Img → Inpaint タブ
+<span class="num">2.</span> モザイク画像をアップロード
+<span class="num">3.</span> モザイク領域をマスク
+<span class="num">4.</span> プロンプト記述
+<span class="num">5.</span> Denoising: <span class="num">0.5-0.7</span>
+<span class="num">6.</span> Inpaint area: Only masked
+<span class="num">7.</span> モデル: Inpainting特化
+
+<span class="cm"># 最も高品質だが手動</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: 動画生成 ==================== -->
+<div id="tab-video" class="tab-content">
+  <div class="sec-title">AI動画生成のNSFW応用</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>AI動画生成技術比較</div>
+      <table>
+        <tr><th>技術</th><th>開発元</th><th>入力</th><th>出力</th><th>フレーム数</th><th>NSFW</th><th>備考</th></tr>
+        <tr>
+          <td><strong>AnimateDiff</strong></td><td>コミュニティ</td><td>Text / Image</td><td>GIF/MP4</td>
+          <td>16-32</td><td><span class="tag tag-emerald">SD1.5モデル互換</span></td>
+          <td>最も普及。A1111拡張として利用可能</td>
+        </tr>
+        <tr>
+          <td><strong>SVD (Stable Video Diffusion)</strong></td><td>Stability AI</td><td>Image</td><td>MP4</td>
+          <td>14-25</td><td><span class="tag tag-rose">制限あり</span></td>
+          <td>高品質だがNSFW制限。3-30fps</td>
+        </tr>
+        <tr>
+          <td><strong>Wan2.1</strong></td><td>Alibaba</td><td>Text / Image</td><td>MP4</td>
+          <td>可変</td><td><span class="tag tag-amber">モデル依存</span></td>
+          <td>オープンソース。高品質動画生成</td>
+        </tr>
+        <tr>
+          <td><strong>CogVideoX</strong></td><td>THUDM</td><td>Text</td><td>MP4</td>
+          <td>可変</td><td><span class="tag tag-amber">モデル依存</span></td>
+          <td>テキストから動画。中国系</td>
+        </tr>
+        <tr>
+          <td><strong>Deforum</strong></td><td>コミュニティ</td><td>Text + params</td><td>MP4</td>
+          <td>無制限</td><td><span class="tag tag-emerald">SD互換</span></td>
+          <td>フレーム補間ベース。長時間動画可能</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">AnimateDiff 詳細</div>
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>仕組み</div>
+      <div class="prose">
+        <p><strong>アーキテクチャ:</strong> SD1.5の画像生成パイプラインにモーションモジュール（Temporal Transformer）を挿入。短い実写動画クリップから動きのパターンを学習し、静止画生成プロセスに時間的整合性を付与。</p>
+        <p><strong>NSFW利点:</strong> SD1.5ベースのため、既存のNSFWチェックポイント（Realistic Vision、CyberRealistic等）と<span class="hl">完全互換</span>。モデルを差し替えるだけでNSFW動画が生成可能。</p>
+        <p><strong>制限:</strong> SD1.5のみ対応（SDXL版は限定的）。16-32フレームのショートクリップが主。長時間動画はフレーム補間で対応。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>導入手順</div>
+      <div class="code-block"><span class="cm"># AUTOMATIC1111 拡張としてインストール</span>
+<span class="cm"># Extensions → Install from URL:</span>
+<span class="str">https://github.com/continue-revolution/
+  sd-webui-animatediff</span>
+
+<span class="cm"># モーションモジュールDL</span>
+<span class="cm"># → extensions/sd-webui-animatediff/
+#    model/ に配置</span>
+
+<span class="cm"># 使用方法</span>
+<span class="num">1.</span> SD1.5チェックポイント選択
+<span class="num">2.</span> AnimateDiff有効化
+<span class="num">3.</span> Motion module選択
+<span class="num">4.</span> フレーム数設定 (<span class="num">16</span>)
+<span class="num">5.</span> FPS設定 (<span class="num">8</span>)
+<span class="num">6.</span> 通常通りプロンプト入力
+<span class="num">7.</span> Generate → GIF/MP4出力</div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">商用NSFW動画生成SaaS (2025年)</div>
+  <div class="grid g3 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>SaaS型サービス</div>
+      <div class="prose">
+        <p>2025年には複数のSaaS型NSFW AI動画生成サービスが登場。ローカル環境構築不要でブラウザから利用可能。</p>
+        <p><strong>課題:</strong> クレジットカード決済が困難（決済プロセッサーのNSFWポリシー）→ 暗号通貨決済が主流に。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>品質の現状</div>
+      <div class="prose">
+        <p>2025年時点のAI動画生成は静止画と比較して<strong>大幅に品質が劣る</strong>。</p>
+        <p>主な課題: 時間的整合性（ちらつき）、解剖学的正確性、フレーム間の一貫性、長時間生成。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>今後の展望</div>
+      <div class="prose">
+        <p>Sora、Veo 2等の大規模動画モデルが登場しているが、NSFW制限は厳格。</p>
+        <p>オープンソース動画モデルの進化により、<span class="hl">2026-2027年に品質の大幅向上</span>が予測される。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: プラットフォーム ==================== -->
+<div id="tab-platform" class="tab-content">
+  <div class="sec-title">モデル配布・収益化エコシステム</div>
+
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>CivitAI エコシステム</div>
+      <div class="prose">
+        <p><strong>役割:</strong> AI画像生成モデルの最大ハブサイト。チェックポイント、LoRA、VAE、Embedding、ワークフローを共有するコミュニティプラットフォーム。</p>
+        <p><strong>規模:</strong> 数万のモデル、数百万のアクティブユーザー。オンライン生成機能も搭載。</p>
+      </div>
+      <div class="timeline mt-8">
+        <div class="tl-item">
+          <div class="tl-date">2022-2023</div>
+          <div class="tl-text">初期: NSFW比較的寛容。SD1.5エコシステムの中核として急成長</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2024 Q2</div>
+          <div class="tl-text">SD3リリース → Stability AIがSD3/特定モデルでのNSFW生成を禁止。CivitAIも準拠</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2024 Q3-Q4</div>
+          <div class="tl-text">クレジットカード決済プロセッサーがNSFWコンテンツへの決済を拒否 → Buzz仮想通貨で暗号通貨決済に移行</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-date">2025 H1</div>
+          <div class="tl-text">コンテンツ政策強化。一部NSFWモデルが制限/削除。クリエイターが代替プラットフォームへ移行開始</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>収益化チャネル比較</div>
+      <div class="chart-wrap"><canvas id="chart-monetize"></canvas></div>
+      <table class="mt-8">
+        <tr><th>チャネル</th><th>NSFW</th><th>手数料</th><th>決済</th></tr>
+        <tr><td>Patreon</td><td><span class="tag tag-amber">限定許容</span></td><td>5-12%</td><td>CC/PayPal</td></tr>
+        <tr><td>SubscribeStar</td><td><span class="tag tag-emerald">許容</span></td><td>5%</td><td>CC</td></tr>
+        <tr><td>CivitAI Buzz</td><td><span class="tag tag-amber">制限強化中</span></td><td>可変</td><td>暗号通貨</td></tr>
+        <tr><td>Gumroad</td><td><span class="tag tag-rose">禁止</span></td><td>-</td><td>-</td></tr>
+        <tr><td>Ko-fi</td><td><span class="tag tag-rose">非推奨</span></td><td>5%</td><td>CC</td></tr>
+        <tr><td>暗号通貨直接</td><td><span class="tag tag-emerald">制限なし</span></td><td>ガス代</td><td>Crypto</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">Deepfake / Undress AI 問題</div>
+  <div class="grid g-wide mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>「Undress AI」アプリの実態</div>
+      <div class="prose">
+        <p><strong>技術:</strong> Stable Diffusion Inpaintingベースの衣服除去AI。実在人物の写真から性的画像を自動生成。</p>
+        <p><strong>規模:</strong> Telegram上だけで数百のボットが稼働。専用Webサイトも多数存在。</p>
+        <p><strong>問題:</strong></p>
+        <p>- <strong>リベンジポルノ</strong>: 元交際相手の画像を加工して拡散</p>
+        <p>- <strong>セクストーション</strong>: 生成画像で脅迫</p>
+        <p>- <strong>CSAM</strong>: 未成年者の画像からの生成（児童ポルノに該当）</p>
+        <p>- <strong>ロマンス詐欺</strong>: 偽の親密画像の作成</p>
+        <p><strong>決済追跡:</strong> ブロックチェーン分析企業（Elliptic等）が暗号通貨決済の追跡により違法サービスの特定に協力。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>プラットフォーム対応状況</div>
+      <table>
+        <tr><th>プラットフォーム</th><th>対応</th></tr>
+        <tr><td>Telegram</td><td>ボット停止措置（不十分）</td></tr>
+        <tr><td>Google Play / App Store</td><td>Undressアプリ禁止</td></tr>
+        <tr><td>Discord</td><td>NSFWサーバー制限強化</td></tr>
+        <tr><td>Reddit</td><td>Deepfake関連サブレディット禁止</td></tr>
+        <tr><td>Twitter/X</td><td>対応不十分との批判</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB: 法規制・逮捕事例 ==================== -->
+<div id="tab-legal" class="tab-content">
+  <div class="sec-title">各国法規制フレームワーク</div>
+
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>日本: 刑法175条</div>
+      <div class="prose">
+        <p><strong>条文要旨:</strong> わいせつな文書、図画、電磁的記録に係る記録媒体の頒布、公然陳列を禁止。2024年改正により電磁的記録（デジタルデータ）を明文化。</p>
+        <p><strong>AI生成物への適用:</strong></p>
+        <p>- AI生成であっても社会通念上「わいせつ」とされる表現は処罰対象</p>
+        <p>- 実在人物でなくても適用される（2025年6月の抱き枕事例で確認）</p>
+        <p>- <span class="hl">頒布（販売・配布）が要件</span> — 個人的な生成・保持のみでは不処罰</p>
+        <p>- ディープフェイクは名誉毀損（刑法230条）、肖像権侵害も併せて追及される可能性</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>米国: TAKE IT DOWN Act</div>
+      <div class="prose">
+        <p><strong>署名日:</strong> 2025年5月19日（トランプ大統領署名）</p>
+        <p><strong>内容:</strong></p>
+        <p>- 非同意親密画像（NCII）の配布を犯罪化</p>
+        <p>- AI生成ディープフェイクも対象</p>
+        <p>- <strong>最大2年の禁固刑</strong></p>
+        <p>- プラットフォームに<span class="hl">48時間以内の削除義務</span></p>
+        <p>- 複製の削除義務も含む</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">日本の逮捕事例 (2025年)</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>AI生成わいせつ物 摘発タイムライン</div>
+      <table>
+        <tr><th>時期</th><th>事案</th><th>容疑</th><th>被疑者</th><th>売上/規模</th><th>特記事項</th></tr>
+        <tr>
+          <td>2025/04</td>
+          <td>AI生成わいせつポスター販売</td>
+          <td>わいせつ図画頒布</td>
+          <td>20-50代 男女4人</td>
+          <td>約1,000万円</td>
+          <td><span class="tag tag-rose">全国初の逮捕事例</span></td>
+        </tr>
+        <tr>
+          <td>2025/04</td>
+          <td>芸能人似わいせつ画像SNS掲載</td>
+          <td>わいせつ図画公然陳列</td>
+          <td>非公開</td>
+          <td>約120万円（閲覧料）</td>
+          <td>約2万点の画像掲載。実在芸能人に似せた生成</td>
+        </tr>
+        <tr>
+          <td>2025/06</td>
+          <td>AI生成わいせつ抱き枕カバー転売</td>
+          <td>わいせつ物頒布</td>
+          <td>40代男性（埼玉）</td>
+          <td>非公開</td>
+          <td><span class="tag tag-amber">実在しない人物でも適用</span> AI生成物への同容疑適用初</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">国際規制動向</div>
+  <div class="grid g3 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>EU</div>
+      <div class="prose">
+        <p><strong>AI Act (2024):</strong> AI生成コンテンツの透明性義務。ディープフェイクにはラベリング義務。</p>
+        <p><strong>GDPR:</strong> 実在人物の無断画像生成はデータ保護法違反の可能性。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>デンマーク</div>
+      <div class="prose">
+        <p>著作権法改正で人の<strong>容姿・顔・声を知的財産</strong>として保護。AIによるリアルな模倣の無断共有は違法。プラットフォーム未削除に厳しい罰金。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>韓国</div>
+      <div class="prose">
+        <p>2024年にディープフェイクポルノ危機。<strong>性暴力処罰法改正</strong>でAI生成性的画像の作成・配布に<span class="hl">最大7年の禁固刑</span>。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-title mt-8">法的リスクマトリクス</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <table>
+        <tr><th>行為</th><th>日本</th><th>米国</th><th>EU</th><th>リスクレベル</th></tr>
+        <tr>
+          <td>AI NSFW画像の個人的生成・保持</td>
+          <td>合法（頒布なし）</td><td>州により異なる</td><td>グレー</td>
+          <td><span class="tag tag-emerald">低</span></td>
+        </tr>
+        <tr>
+          <td>AI NSFW画像の販売・頒布</td>
+          <td>刑法175条違反</td><td>州法による</td><td>規制対象</td>
+          <td><span class="tag tag-rose">高</span></td>
+        </tr>
+        <tr>
+          <td>実在人物のディープフェイクNSFW</td>
+          <td>名誉毀損+肖像権侵害</td><td>TAKE IT DOWN Act</td><td>GDPR+AI Act</td>
+          <td><span class="tag tag-rose">極めて高</span></td>
+        </tr>
+        <tr>
+          <td>未成年のAI生成NSFW</td>
+          <td>児童ポルノ禁止法</td><td>連邦法違反</td><td>厳罰</td>
+          <td><span class="tag tag-rose">極めて高（犯罪）</span></td>
+        </tr>
+        <tr>
+          <td>Uncensored LoRA/モデルの配布</td>
+          <td>グレー（ツール提供）</td><td>保護（Section 230）</td><td>AI Act規制</td>
+          <td><span class="tag tag-amber">中</span></td>
+        </tr>
+        <tr>
+          <td>モザイク除去ツールの開発・配布</td>
+          <td>グレー（ツール自体は合法）</td><td>合法</td><td>合法</td>
+          <td><span class="tag tag-amber">中（利用目的による）</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    <strong>免責事項:</strong> 本レポートは技術・法的状況の学術的分析を目的としています。法的助言ではありません。具体的な法的問題については弁護士にご相談ください。AI生成コンテンツの不正利用は厳しく処罰される可能性があります。
+  </div>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script>
+const COLORS = {
+  indigo: '#6366f1', violet: '#8b5cf6', cyan: '#06b6d4',
+  emerald: '#10b981', amber: '#f59e0b', rose: '#f43f5e',
+  sky: '#38bdf8', slate: '#64748b'
+};
+const chartDefaults = {
+  color: '#8585a0',
+  borderColor: 'rgba(255,255,255,0.04)',
+  font: { family: "'Inter','Noto Sans JP',sans-serif", size: 10 }
+};
+Chart.defaults.color = chartDefaults.color;
+Chart.defaults.font = chartDefaults.font;
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.padding = 8;
+Chart.defaults.scale.grid = { color: chartDefaults.borderColor };
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (!window._chartsInit[id]) {
+    window._chartsInit[id] = true;
+    initCharts(id);
+  }
+}
+
+window._chartsInit = { overview: false };
+
+function initCharts(tab) {
+  if (tab === 'overview') {
+    // Model timeline chart
+    new Chart(document.getElementById('chart-timeline'), {
+      type: 'bar',
+      data: {
+        labels: ['SD 1.5', 'SDXL', 'SD Turbo', 'LCM', 'SD3', 'Flux.1'],
+        datasets: [{
+          label: 'NSFW LoRA/チェックポイント数（推定）',
+          data: [5000, 3000, 500, 800, 100, 1500],
+          backgroundColor: [COLORS.indigo, COLORS.violet, COLORS.amber, COLORS.cyan, COLORS.rose, COLORS.emerald],
+          borderRadius: 3,
+          barThickness: 20
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, title: { display: true, text: 'モデル数（推定）' } }
+        }
+      }
+    });
+  }
+
+  if (tab === 'pipeline') {
+    new Chart(document.getElementById('chart-denoise'), {
+      type: 'line',
+      data: {
+        labels: ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'],
+        datasets: [{
+          label: '変更量',
+          data: [5, 10, 20, 35, 50, 65, 80, 90, 95, 100],
+          borderColor: COLORS.indigo,
+          backgroundColor: 'rgba(99,102,241,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3
+        }, {
+          label: '整合性',
+          data: [100, 98, 95, 90, 80, 65, 45, 25, 10, 5],
+          borderColor: COLORS.emerald,
+          backgroundColor: 'rgba(16,185,129,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x: { title: { display: true, text: 'Denoising Strength' } },
+          y: { title: { display: true, text: '%' }, min: 0, max: 100 }
+        }
+      }
+    });
+  }
+
+  if (tab === 'lora') {
+    new Chart(document.getElementById('chart-lora-compare'), {
+      type: 'radar',
+      data: {
+        labels: ['学習時間', 'VRAMの使用量', '品質', 'ファイルサイズ', '柔軟性', '複数同時適用'],
+        datasets: [{
+          label: 'Full Fine-tuning',
+          data: [20, 95, 95, 100, 30, 10],
+          borderColor: COLORS.rose,
+          backgroundColor: 'rgba(244,63,94,0.1)',
+          pointRadius: 3
+        }, {
+          label: 'LoRA',
+          data: [80, 30, 85, 15, 90, 95],
+          borderColor: COLORS.indigo,
+          backgroundColor: 'rgba(99,102,241,0.1)',
+          pointRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          r: {
+            beginAtZero: true,
+            max: 100,
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            angleLines: { color: 'rgba(255,255,255,0.04)' },
+            pointLabels: { font: { size: 9 } }
+          }
+        }
+      }
+    });
+  }
+
+  if (tab === 'demosaic') {
+    new Chart(document.getElementById('chart-demosaic'), {
+      type: 'bar',
+      data: {
+        labels: ['DeepMosaics', 'hent-ai', 'JavPlayer', 'Lama Cleaner', 'SD Inpainting'],
+        datasets: [{
+          label: '品質スコア',
+          data: [65, 70, 75, 72, 90],
+          backgroundColor: COLORS.indigo,
+          borderRadius: 3,
+          barThickness: 16
+        }, {
+          label: '速度スコア',
+          data: [80, 60, 85, 70, 30],
+          backgroundColor: COLORS.emerald,
+          borderRadius: 3,
+          barThickness: 16
+        }, {
+          label: '自動化度',
+          data: [90, 85, 95, 50, 20],
+          backgroundColor: COLORS.amber,
+          borderRadius: 3,
+          barThickness: 16
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          y: { beginAtZero: true, max: 100, title: { display: true, text: 'スコア' } }
+        }
+      }
+    });
+  }
+
+  if (tab === 'platform') {
+    new Chart(document.getElementById('chart-monetize'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Patreon (58%)', 'SubscribeStar (15%)', 'CivitAI Buzz (12%)', '暗号通貨直接 (8%)', 'その他 (7%)'],
+        datasets: [{
+          data: [58, 15, 12, 8, 7],
+          backgroundColor: [COLORS.indigo, COLORS.emerald, COLORS.amber, COLORS.violet, COLORS.slate],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 9 }, padding: 6 } }
+        }
+      }
+    });
+  }
+}
+
+// Init overview charts on load
+document.addEventListener('DOMContentLoaded', () => {
+  window._chartsInit.overview = true;
+  initCharts('overview');
+});
+</script>
+
+</body>
+</html>

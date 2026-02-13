@@ -1252,25 +1252,269 @@ train_data/
     </div>
   </div>
 
-  <div class="sec-title mt-8">国際規制動向</div>
+  <div class="sec-title mt-8">海外の逮捕・有罪事例</div>
+
+  <!-- 米国 -->
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>米国の主要事例</div>
+      <table>
+        <tr><th>時期</th><th>被疑者</th><th>場所</th><th>事案</th><th>適用法</th><th>刑罰</th><th>詳細</th></tr>
+        <tr>
+          <td>2024/05</td>
+          <td>Steven Anderegg (42)<br>ソフトウェアエンジニア</td>
+          <td>ウィスコンシン州ホルメン</td>
+          <td>Stable Diffusionで13,000枚以上のAI児童性虐待画像を生成・配布。未成年者にも送信</td>
+          <td>連邦法（猥褻物製造・配布・所持）</td>
+          <td>最大70年の禁固刑（審理中）</td>
+          <td><span class="tag tag-rose">DOJ初のAI-CSAM逮捕</span> 2025/02に所持罪のみ却下（修正第1条）、製造・配布は維持</td>
+        </tr>
+        <tr>
+          <td>2024</td>
+          <td>Seth Herrera<br>米陸軍兵士</td>
+          <td>アラスカ州</td>
+          <td>AIチャットボットで知人の未成年者を対象としたCSAM画像を生成</td>
+          <td>連邦法</td>
+          <td>審理中</td>
+          <td>実在の未成年者の顔を使用した点で悪質性が高い</td>
+        </tr>
+        <tr>
+          <td>2024</td>
+          <td>David Tatum<br>児童精神科医</td>
+          <td>ノースカロライナ州シャーロット</td>
+          <td>AIを使用して患者である児童の性的虐待画像を生成</td>
+          <td>連邦法</td>
+          <td><span class="tag tag-rose">禁固40年</span></td>
+          <td>医師としての立場を悪用。「最悪の形でAIを悪用」と検察</td>
+        </tr>
+        <tr>
+          <td>2025</td>
+          <td>Justin Ryan Culmo (40)</td>
+          <td>フロリダ州オールズマー</td>
+          <td>AI生成を含む数千枚のCSAM画像を製造・配布。乳幼児を含む被害</td>
+          <td>連邦法（CSAM製造・配布・所持）</td>
+          <td>有罪答弁済み（量刑待ち）</td>
+          <td>3件の製造罪 + 配布罪 + 所持罪 + AI改変による製造罪で有罪</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 韓国 -->
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>韓国: ディープフェイク危機 (2024)</div>
+      <div class="prose">
+        <p><strong>規模:</strong> 2024年8月〜、Telegramを中心にAI生成性的ディープフェイクが爆発的に拡散。被害通報が前年比<span class="hl">7.4倍（1,384件→10,305件）</span>に急増。</p>
+        <p><strong>加害者の特徴:</strong> <span class="hl">10代の未成年者が主体</span>。安価なAIツールの普及により中高生が加害者に。15歳少年が590本の芸能人ディープフェイク動画を作成し、800人以上が参加するTelegramチャンネル3つを運営。</p>
+        <p><strong>22万人チャンネル:</strong> 1つのTelegramチャンネルだけで<strong>22万人の会員</strong>がディープフェイクポルノを共有。</p>
+        <p><strong>手口の悪質化:</strong> 17歳リーダー率いる4人の少年グループが、「あなたの偽動画が出回っている」と嘘をつき被害者をSNSで誘い出し、実際の性的画像の提出を強要（セクストーション）。10ヶ月で79件の違法録画。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>韓国: 統計と法的対応</div>
+      <div class="prose">
+        <p><strong>摘発統計 (2024/11-2025/10):</strong></p>
+        <p>- サイバー性暴力 逮捕者: <strong>3,557人</strong></p>
+        <p>- うちディープフェイク関連: <strong>1,553件</strong>（最大カテゴリ）</p>
+        <p><strong>判決事例:</strong></p>
+        <p>- 女子大学生を対象としたTelegramディープフェイク犯罪に<span class="hl">禁固10年</span>の判決</p>
+        <p><strong>法改正 (2024/10):</strong></p>
+        <p>- 性暴力処罰法改正: 「配布目的」の立証不要に</p>
+        <p>- 最大刑: <strong>5年→7年に引き上げ</strong></p>
+        <p>- AI生成性的画像の<strong>作成自体</strong>を犯罪化</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Europol -->
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>Europol: Operation Cumberland（2025/02）</div>
+      <div class="prose">
+        <p><strong>概要:</strong> デンマーク警察主導、Europol調整による<span class="hl">19カ国</span>にまたがるAI生成CSAM（児童性虐待画像）の国際一斉摘発作戦。</p>
+        <p><strong>結果:</strong></p>
+      </div>
+      <div class="stat-pills">
+        <div class="stat-pill"><span class="sp-v" style="color:var(--rose)">273人</span><span class="sp-l">容疑者特定</span></div>
+        <div class="stat-pill"><span class="sp-v" style="color:var(--amber)">25人</span><span class="sp-l">逮捕</span></div>
+        <div class="stat-pill"><span class="sp-v" style="color:var(--cyan)">33件</span><span class="sp-l">家宅捜索</span></div>
+        <div class="stat-pill"><span class="sp-v" style="color:var(--indigo)">173台</span><span class="sp-l">電子機器押収</span></div>
+        <div class="stat-pill"><span class="sp-v" style="color:var(--violet)">19カ国</span><span class="sp-l">参加国数</span></div>
+      </div>
+      <div class="prose mt-8">
+        <p><strong>主犯:</strong> デンマーク国籍の男性（2024年11月逮捕）。AI生成CSAMを配布するオンラインプラットフォームを運営。パスワード販売制で世界中のユーザーにアクセスを提供。</p>
+        <p><strong>参加国:</strong> オーストラリア、オーストリア、ベルギー、ボスニア・ヘルツェゴビナ、チェコ、デンマーク、フィンランド、フランス、ドイツ、ハンガリー、アイスランド、オランダ、ニュージーランド、ノルウェー、ポーランド、スペイン、スウェーデン、スイス、英国</p>
+        <p><strong>意義:</strong> AI生成CSAMに対する<span class="hl">世界初の大規模国際共同捜査</span>。追加逮捕が進行中。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 英国・豪州・中国・スペイン -->
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>英国の事例</div>
+      <div class="prose">
+        <p><strong>Bolton事件 (2024末):</strong> AIを使用して児童の性的虐待画像を生成した男性に<span class="hl">禁固18年</span>の判決。既存の児童ポルノ法を適用。</p>
+        <p><strong>Sussex事件:</strong> 数千枚のAI生成児童虐待画像を所持していた男性に数年の禁固刑。</p>
+        <p><strong>法改正 (2024-2025):</strong></p>
+        <p>- Online Safety Act 改正でディープフェイクの「共有」を犯罪化 (2024)</p>
+        <p>- Criminal Justice Bill 改正で「<strong>作成自体</strong>」も犯罪化 (2025) — 共有しなくても処罰対象に</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>オーストラリア: Rotondo事件</div>
+      <div class="prose">
+        <p><strong>被告:</strong> Anthony Rotondo</p>
+        <p><strong>事案:</strong> 2022年末〜2023年10月、オーストラリアの著名女性6人のディープフェイクポルノ12件を作成し、MrDeepFakes.comに投稿</p>
+        <p><strong>制裁:</strong> <span class="hl">罰金$343,500（約5,500万円）</span> + 裁判費用。eSafety委員会が民事訴訟として提訴。</p>
+        <p><strong>追加:</strong> 裁判所命令に違反し画像を削除しなかったため、法廷侮辱罪で追加罰金$25,000</p>
+        <p><strong>被告の態度:</strong> 「趣味だった」「楽しかった」と述べ、<strong>反省の弁なし</strong>。裁判官は「深刻で、意図的で、持続的な行為」と認定。</p>
+        <p><strong>意義:</strong> <span class="hl">豪州初のディープフェイクに対する罰金事例</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="grid g2 mt-8">
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>中国: AIチャットボット事件</div>
+      <div class="prose">
+        <p><strong>事案 (2024):</strong> 「AlienChat」という"感情的コンパニオン"AIチャットボットの開発者2名が逮捕。AIモデルのチャット履歴に性的コンテンツが発見された。</p>
+        <p><strong>判決:</strong> 上海裁判所が2名にそれぞれ<span class="hl">禁固4年と1年6ヶ月</span>。「猥褻・ポルノコンテンツの製造から利益を得た」罪。</p>
+        <p><strong>政府対応 (2025/04):</strong> 中国サイバースペース管理局が「AI技術の濫用を整理・是正する」3ヶ月キャンペーンを開始。ポルノ・低俗コンテンツのAI生成・公開を重点取締り。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>スペイン・フランス</div>
+      <div class="prose">
+        <p><strong>スペイン (2025/12):</strong> 北スペインで男性が逮捕。公共の場で未成年者の写真を撮影し、AIで性的画像に加工。児童ポルノ製造罪で起訴。</p>
+        <p><strong>フランス (2024):</strong> 刑法226-8-1条を新設。</p>
+        <p>- 同意のない性的ディープフェイクの公開を犯罪化</p>
+        <p>- <span class="hl">最大2年の禁固刑 + €60,000の罰金</span></p>
+        <p>- アルゴリズムで人物の画像・声を再現した性的コンテンツを無断公開した場合に適用</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grok問題 -->
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>プラットフォーム問題: X/Grok (2025末)</div>
+      <div class="prose">
+        <p>2025年末、Elon MuskのプラットフォームXに搭載されたAI画像生成ツール「Grok」が、ユーザーによる性的画像生成に悪用される事態が発生。ダークウェブフォーラムでは女性や児童のヌード画像をGrokで生成したと公言するユーザーが確認された。<strong>マレーシアとインドネシアがGrokをブロック</strong>する措置を実施（各国初）。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 世界地図的比較 -->
+  <div class="sec-title mt-8">国別規制・処罰比較</div>
+  <div class="grid g2 mt-8">
+    <div class="card span-2">
+      <table>
+        <tr><th>国</th><th>AI-NSFW生成</th><th>ディープフェイク</th><th>AI-CSAM</th><th>最大刑罰</th><th>特記</th></tr>
+        <tr>
+          <td>🇯🇵 日本</td>
+          <td>個人保持は合法<br>頒布は違法(175条)</td>
+          <td>名誉毀損+肖像権侵害</td>
+          <td>所持も違法(児ポ法)</td>
+          <td>禁固2年/罰金250万円</td>
+          <td>2025年に「全国初」摘発が連続</td>
+        </tr>
+        <tr>
+          <td>🇺🇸 米国</td>
+          <td>州法による</td>
+          <td>TAKE IT DOWN Act(2025)</td>
+          <td>連邦法で厳罰</td>
+          <td><span class="tag tag-rose">禁固40-70年</span></td>
+          <td>DOJ積極的に起訴。修正第1条との緊張関係</td>
+        </tr>
+        <tr>
+          <td>🇰🇷 韓国</td>
+          <td>作成自体を犯罪化(2024)</td>
+          <td>性暴力処罰法</td>
+          <td>厳罰</td>
+          <td><span class="tag tag-rose">禁固7-10年</span></td>
+          <td>3,557人逮捕(2024-25)。10代加害者が主体</td>
+        </tr>
+        <tr>
+          <td>🇬🇧 英国</td>
+          <td>作成を犯罪化(2025)</td>
+          <td>Online Safety Act</td>
+          <td>既存児ポ法で厳罰</td>
+          <td><span class="tag tag-rose">禁固18年</span></td>
+          <td>作成のみでも処罰（共有不要）</td>
+        </tr>
+        <tr>
+          <td>🇫🇷 フランス</td>
+          <td>規制強化中</td>
+          <td>刑法226-8-1条(2024)</td>
+          <td>厳罰</td>
+          <td>禁固2年/€60,000</td>
+          <td>性的ディープフェイクの公開を明確に犯罪化</td>
+        </tr>
+        <tr>
+          <td>🇦🇺 豪州</td>
+          <td>eSafety委員会が規制</td>
+          <td>民事罰金制度</td>
+          <td>厳罰</td>
+          <td>罰金$343,500+</td>
+          <td>初のディープフェイク罰金事例(Rotondo)</td>
+        </tr>
+        <tr>
+          <td>🇨🇳 中国</td>
+          <td>AI整理キャンペーン</td>
+          <td>厳格規制</td>
+          <td>厳罰</td>
+          <td>禁固4年</td>
+          <td>AIチャットボット開発者が有罪</td>
+        </tr>
+        <tr>
+          <td>🇪🇸 スペイン</td>
+          <td>EU AI Act準拠</td>
+          <td>規制強化中</td>
+          <td>厳罰</td>
+          <td>EU基準</td>
+          <td>未成年写真をAI加工した男を逮捕(2025/12)</td>
+        </tr>
+        <tr>
+          <td>🇩🇰 デンマーク</td>
+          <td>著作権法で肖像保護</td>
+          <td>肖像＝知的財産</td>
+          <td>Operation Cumberland主導</td>
+          <td>-</td>
+          <td>容姿・顔・声を知的財産として保護</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 加害者プロファイル -->
+  <div class="sec-title mt-8">加害者プロファイル分析</div>
   <div class="grid g3 mt-8">
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>EU</div>
+      <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>類型1: 営利目的販売者</div>
       <div class="prose">
-        <p><strong>AI Act (2024):</strong> AI生成コンテンツの透明性義務。ディープフェイクにはラベリング義務。</p>
-        <p><strong>GDPR:</strong> 実在人物の無断画像生成はデータ保護法違反の可能性。</p>
+        <p><strong>特徴:</strong> AI生成画像をポスター・グッズ化して販売。「原価が安く稼げる」動機。</p>
+        <p><strong>事例:</strong> 水谷(44・小売業・1,000万円)、19歳大学生(28万円)、46歳自営業(数万円)</p>
+        <p><strong>手法:</strong> フリマ/オークションサイトで「AI美女」として出品。モザイク付きで出品→無修正で納品。</p>
+        <p><strong>リスク認識:</strong> 低い。「AIが作った画像だから問題ない」との認識が共通。</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:var(--violet)"></span>デンマーク</div>
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>類型2: ディープフェイク作成者</div>
       <div class="prose">
-        <p>著作権法改正で人の<strong>容姿・顔・声を知的財産</strong>として保護。AIによるリアルな模倣の無断共有は違法。プラットフォーム未削除に厳しい罰金。</p>
+        <p><strong>特徴:</strong> 実在人物（芸能人・知人）の顔をAIで性的画像に合成。</p>
+        <p><strong>事例:</strong> 横井(31・会社員・芸能人262人)、韓国10代グループ、豪Rotondo</p>
+        <p><strong>動機:</strong> 「趣味・楽しみ」(Rotondo) から収益化(横井)まで幅広い。</p>
+        <p><strong>被害者:</strong> 芸能人→一般人→同級生→卒業アルバム写真の被害者へと拡大。</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:var(--emerald)"></span>韓国</div>
+      <div class="card-title"><span class="dot" style="background:var(--amber)"></span>類型3: AI-CSAM生成者</div>
       <div class="prose">
-        <p>2024年にディープフェイクポルノ危機。<strong>性暴力処罰法改正</strong>でAI生成性的画像の作成・配布に<span class="hl">最大7年の禁固刑</span>。</p>
+        <p><strong>特徴:</strong> AI（主にStable Diffusion）で児童の性的画像を生成。最も重い刑罰対象。</p>
+        <p><strong>事例:</strong> Anderegg(42・SE・13,000枚)、Tatum(児童精神科医・禁固40年)、Culmo(40)、日本元教諭</p>
+        <p><strong>共通点:</strong> 専門技術者・教育者・医療従事者など社会的地位のある者が含まれる。</p>
+        <p><strong>刑罰:</strong> <span class="hl">最も厳しく、禁固10-70年</span>の範囲。「実在児童が存在しない」は減刑理由にならない傾向。</p>
       </div>
     </div>
   </div>

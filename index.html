@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI生成NSFWコンテンツ 技術パイプライン調査 2025</title>
+<title>AI生成NSFWコンテンツ 技術パイプライン調査 2025-2026</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -357,13 +357,13 @@
 <div class="header-bar">
   <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap">
     <span class="title">AI-NSFW Technical Pipeline Dashboard</span>
-    <span class="sub">AI生成NSFWコンテンツ技術調査 2025</span>
+    <span class="sub">AI生成NSFWコンテンツ技術調査 2025-2026</span>
   </div>
   <div class="kpi-row">
     <div class="kpi"><div class="v">$455億</div><div class="l">デジタルアダルト市場 2024</div></div>
-    <div class="kpi"><div class="v">80%</div><div class="l">AI活用コンテンツ制作率</div></div>
-    <div class="kpi"><div class="v">3件+</div><div class="l">日本AI逮捕事例 2025</div></div>
-    <div class="kpi"><div class="v">50億+</div><div class="l">LAION学習画像数</div></div>
+    <div class="kpi"><div class="v">32B</div><div class="l">Flux.2 最大パラメータ</div></div>
+    <div class="kpi"><div class="v">5件+</div><div class="l">日本AI逮捕事例 2024-25</div></div>
+    <div class="kpi"><div class="v">19カ国</div><div class="l">国際摘発連携</div></div>
   </div>
 </div>
 
@@ -427,7 +427,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>SDモデル系譜</div>
+        <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>生成モデル系譜 (2022-2026)</div>
         <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
       </div>
     </div>
@@ -439,7 +439,7 @@
       <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>モデル層</div>
       <table>
         <tr><th>要素</th><th>役割</th></tr>
-        <tr><td>チェックポイント</td><td>基盤モデル（SD1.5, SDXL, Flux）</td></tr>
+        <tr><td>チェックポイント</td><td>基盤モデル（SD1.5, SDXL, Flux, HiDream）</td></tr>
         <tr><td>LoRA</td><td>軽量追加学習（スタイル/キャラ/制限解除）</td></tr>
         <tr><td>VAE</td><td>画像品質の調整</td></tr>
         <tr><td>Embedding</td><td>概念の追加（Textual Inversion）</td></tr>
@@ -487,37 +487,49 @@
           <td><strong>SD 1.5</strong></td><td>2022/10</td><td>U-Net + CLIP</td><td>512x512</td>
           <td><span class="tag tag-emerald">最も成熟</span></td>
           <td><span class="tag tag-emerald">★★★★★</span></td>
-          <td>LAION-5Bから学習。NSFW LoRA/チェックポイント最多</td>
+          <td>LAION-5Bから学習。NSFW LoRA/チェックポイント最多。レガシーだが依然主力</td>
         </tr>
         <tr>
           <td><strong>SDXL</strong></td><td>2023/07</td><td>U-Net + dual CLIP</td><td>1024x1024</td>
           <td><span class="tag tag-emerald">充実</span></td>
           <td><span class="tag tag-emerald">★★★★</span></td>
-          <td>高解像度化。リファイナーモデル搭載。SD1.5から移行進行中</td>
+          <td>高解像度化。リファイナーモデル搭載</td>
         </tr>
         <tr>
-          <td><strong>SDXL Turbo</strong></td><td>2023/11</td><td>Adversarial Diffusion Distillation</td><td>512x512</td>
-          <td><span class="tag tag-amber">限定的</span></td>
-          <td><span class="tag tag-amber">★★★</span></td>
-          <td>1-4ステップ高速生成。リアルタイムに近い</td>
-        </tr>
-        <tr>
-          <td><strong>LCM</strong></td><td>2023/10</td><td>Latent Consistency</td><td>可変</td>
-          <td><span class="tag tag-amber">モデル依存</span></td>
-          <td><span class="tag tag-amber">★★★</span></td>
-          <td>少ステップ生成。LoRAとして適用可能</td>
-        </tr>
-        <tr>
-          <td><strong>SD3/3.5</strong></td><td>2024/06</td><td>MMDiT (Multi-Modal DiT)</td><td>可変</td>
+          <td><strong>SD3/3.5</strong></td><td>2024/06</td><td>MMDiT</td><td>可変</td>
           <td><span class="tag tag-rose">制限付き</span></td>
           <td><span class="tag tag-rose">★★</span></td>
-          <td>Stability AIがNSFW禁止。CivitAIからもR+生成不可</td>
+          <td>Stability AIがNSFW禁止。テキスト描画精度向上</td>
+        </tr>
+        <tr>
+          <td><strong>SD4</strong></td><td>2025</td><td>次世代DiT</td><td>可変</td>
+          <td><span class="tag tag-rose">制限付き</span></td>
+          <td><span class="tag tag-amber">★★★</span></td>
+          <td>テキスト描画問題解決。3D/動画ワークフロー対応。NSFW制限継続</td>
         </tr>
         <tr>
           <td><strong>Flux.1</strong></td><td>2024/08</td><td>Rectified Flow Transformer</td><td>可変</td>
           <td><span class="tag tag-amber">LoRAで解除</span></td>
           <td><span class="tag tag-emerald">★★★★</span></td>
-          <td>Black Forest Labs開発。高品質。コミュニティLoRAで制限解除</td>
+          <td>Black Forest Labs開発。コミュニティLoRAで制限解除</td>
+        </tr>
+        <tr>
+          <td><strong>Flux 1.1 Pro</strong></td><td>2024/10</td><td>Flow Transformer改良</td><td>2K対応</td>
+          <td><span class="tag tag-amber">LoRAで解除</span></td>
+          <td><span class="tag tag-emerald">★★★★</span></td>
+          <td>Flux.1から3倍高速化。Ultra版は2K出力対応</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--cyan)">Flux.2</strong></td><td>2025/11</td><td>32B Flow Transformer + Mistral-3 24B VLM</td><td>4MP対応</td>
+          <td><span class="tag tag-amber">LoRAで解除見込み</span></td>
+          <td><span class="tag tag-emerald">★★★★</span></td>
+          <td><span class="tag tag-cyan">最新</span> Pro/Flex/Dev/Klein(4B/9B)の4系統。マルチリファレンス(最大10画像)対応。Apache 2.0(Klein)</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--cyan)">HiDream-I1</strong></td><td>2025/04</td><td>Sparse DiT + MoE (17B)</td><td>可変</td>
+          <td><span class="tag tag-amber">オープン(MIT)</span></td>
+          <td><span class="tag tag-amber">★★★</span></td>
+          <td><span class="tag tag-cyan">注目</span> 17Bパラメータ。Full/Dev/Fastの3バリアント。HPS v2.1最高スコア</td>
         </tr>
       </table>
     </div>
@@ -798,6 +810,16 @@ train_data/
           <td><code>&lt;lora:flux-nsfw-v2:0.8&gt;</code></td>
         </tr>
         <tr>
+          <td>Flux.2 Klein NSFW LoRA</td><td>Flux.2-Klein</td><td>CivitAI</td>
+          <td>~60MB</td><td>Klein向け制限解除</td>
+          <td><code>&lt;lora:flux2-klein-nsfw:0.7&gt;</code></td>
+        </tr>
+        <tr>
+          <td>HiDream-I1 Uncensored</td><td>HiDream-I1-Full</td><td>HuggingFace</td>
+          <td>~80MB</td><td>MITライセンス活用</td>
+          <td><code>&lt;lora:hidream-uncensored:0.8&gt;</code></td>
+        </tr>
+        <tr>
           <td>各種SD1.5/SDXL NSFW Checkpoint</td><td>SD1.5/SDXL</td><td>CivitAI</td>
           <td>2-7GB</td><td>フルチェックポイント</td>
           <td>モデル選択のみ（LoRA不要）</td>
@@ -945,31 +967,46 @@ train_data/
     <div class="card span-2">
       <div class="card-title"><span class="dot" style="background:var(--indigo)"></span>AI動画生成技術比較</div>
       <table>
-        <tr><th>技術</th><th>開発元</th><th>入力</th><th>出力</th><th>フレーム数</th><th>NSFW</th><th>備考</th></tr>
+        <tr><th>技術</th><th>開発元</th><th>リリース</th><th>パラメータ</th><th>入力</th><th>NSFW</th><th>備考</th></tr>
         <tr>
-          <td><strong>AnimateDiff</strong></td><td>コミュニティ</td><td>Text / Image</td><td>GIF/MP4</td>
-          <td>16-32</td><td><span class="tag tag-emerald">SD1.5モデル互換</span></td>
-          <td>最も普及。A1111拡張として利用可能</td>
+          <td><strong>AnimateDiff</strong></td><td>コミュニティ</td><td>2023</td><td>-</td><td>Text / Image</td>
+          <td><span class="tag tag-emerald">SD1.5互換</span></td>
+          <td>最も普及。A1111拡張。SD1.5 NSFWモデルと完全互換</td>
         </tr>
         <tr>
-          <td><strong>SVD (Stable Video Diffusion)</strong></td><td>Stability AI</td><td>Image</td><td>MP4</td>
-          <td>14-25</td><td><span class="tag tag-rose">制限あり</span></td>
-          <td>高品質だがNSFW制限。3-30fps</td>
+          <td><strong>SVD</strong></td><td>Stability AI</td><td>2023/11</td><td>-</td><td>Image</td>
+          <td><span class="tag tag-rose">制限あり</span></td>
+          <td>高品質だがNSFW制限。14-25フレーム</td>
         </tr>
         <tr>
-          <td><strong>Wan2.1</strong></td><td>Alibaba</td><td>Text / Image</td><td>MP4</td>
-          <td>可変</td><td><span class="tag tag-amber">モデル依存</span></td>
-          <td>オープンソース。高品質動画生成</td>
-        </tr>
-        <tr>
-          <td><strong>CogVideoX</strong></td><td>THUDM</td><td>Text</td><td>MP4</td>
-          <td>可変</td><td><span class="tag tag-amber">モデル依存</span></td>
+          <td><strong>CogVideoX</strong></td><td>THUDM</td><td>2024</td><td>5B</td><td>Text</td>
+          <td><span class="tag tag-amber">モデル依存</span></td>
           <td>テキストから動画。中国系</td>
         </tr>
         <tr>
-          <td><strong>Deforum</strong></td><td>コミュニティ</td><td>Text + params</td><td>MP4</td>
-          <td>無制限</td><td><span class="tag tag-emerald">SD互換</span></td>
-          <td>フレーム補間ベース。長時間動画可能</td>
+          <td><strong style="color:var(--cyan)">HunyuanVideo</strong></td><td>Tencent</td><td>2024/12</td><td>13B</td><td>Text / Image</td>
+          <td><span class="tag tag-amber">オープンソース</span></td>
+          <td><span class="tag tag-cyan">高品質</span> 大規模パラメータで高品質動画生成</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--cyan)">HunyuanVideo 1.5</strong></td><td>Tencent</td><td>2025/11</td><td>8.3B</td><td>Text / Image</td>
+          <td><span class="tag tag-amber">オープンソース</span></td>
+          <td><span class="tag tag-cyan">最新</span> 軽量化(8.3B)でコンシューマGPU対応。SOTA品質</td>
+        </tr>
+        <tr>
+          <td><strong style="color:var(--cyan)">Wan2.1</strong></td><td>Alibaba</td><td>2025</td><td>1.3B-14B</td><td>Text / Image</td>
+          <td><span class="tag tag-amber">オープンソース</span></td>
+          <td><span class="tag tag-cyan">注目</span> 1.3Bは8GB VRAMで動作。商用モデル超えのベンチマーク</td>
+        </tr>
+        <tr>
+          <td><strong>LTX-Video</strong></td><td>Lightricks</td><td>2025</td><td>-</td><td>Text / Image</td>
+          <td><span class="tag tag-amber">オープンソース</span></td>
+          <td>初のDiTベース動画生成。リアルタイム生成可能</td>
+        </tr>
+        <tr>
+          <td><strong>SkyReels V1</strong></td><td>Skywork AI</td><td>2025/02</td><td>-</td><td>Text / Image</td>
+          <td><span class="tag tag-amber">オープンソース</span></td>
+          <td>人物中心の映画品質動画。HunyuanVideoベース。1000万本の映像でFT</td>
         </tr>
       </table>
     </div>
@@ -1007,27 +1044,27 @@ train_data/
     </div>
   </div>
 
-  <div class="sec-title mt-8">商用NSFW動画生成SaaS (2025年)</div>
+  <div class="sec-title mt-8">NSFW動画生成の現状 (2026年)</div>
   <div class="grid g3 mt-8">
     <div class="card">
       <div class="card-title"><span class="dot" style="background:var(--amber)"></span>SaaS型サービス</div>
       <div class="prose">
-        <p>2025年には複数のSaaS型NSFW AI動画生成サービスが登場。ローカル環境構築不要でブラウザから利用可能。</p>
+        <p>2025-2026年にかけて複数のSaaS型NSFW AI動画生成サービスが登場。ローカル環境構築不要でブラウザから利用可能。</p>
         <p><strong>課題:</strong> クレジットカード決済が困難（決済プロセッサーのNSFWポリシー）→ 暗号通貨決済が主流に。</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>品質の現状</div>
+      <div class="card-title"><span class="dot" style="background:var(--rose)"></span>品質の現状 (2026)</div>
       <div class="prose">
-        <p>2025年時点のAI動画生成は静止画と比較して<strong>大幅に品質が劣る</strong>。</p>
-        <p>主な課題: 時間的整合性（ちらつき）、解剖学的正確性、フレーム間の一貫性、長時間生成。</p>
+        <p>HunyuanVideo 1.5やWan2.1の登場により、オープンソース動画生成の品質は<strong>飛躍的に向上</strong>。</p>
+        <p>残存課題: 長時間動画（30秒超）の一貫性、リアルタイム生成速度、高解像度（4K）対応。</p>
       </div>
     </div>
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>今後の展望</div>
+      <div class="card-title"><span class="dot" style="background:var(--cyan)"></span>2026年の状況</div>
       <div class="prose">
-        <p>Sora、Veo 2等の大規模動画モデルが登場しているが、NSFW制限は厳格。</p>
-        <p>オープンソース動画モデルの進化により、<span class="hl">2026-2027年に品質の大幅向上</span>が予測される。</p>
+        <p>Sora、Veo 2等の商用動画モデルはNSFW制限が厳格だが、<span class="hl">OSSモデルが品質面で急速に追い上げ</span>。</p>
+        <p>HunyuanVideo 1.5（8.3B）、Wan2.1（最大14B）がローカル生成の主力に。LoRA適用による制限解除も進行中。</p>
       </div>
     </div>
   </div>
@@ -1821,13 +1858,13 @@ function initCharts(tab) {
     new Chart(document.getElementById('chart-timeline'), {
       type: 'bar',
       data: {
-        labels: ['SD 1.5', 'SDXL', 'SD Turbo', 'LCM', 'SD3', 'Flux.1'],
+        labels: ['SD 1.5', 'SDXL', 'SD3', 'Flux.1', 'Flux.2', 'HiDream', 'SD4'],
         datasets: [{
           label: 'NSFW LoRA/チェックポイント数（推定）',
-          data: [5000, 3000, 500, 800, 100, 1500],
-          backgroundColor: [COLORS.indigo, COLORS.violet, COLORS.amber, COLORS.cyan, COLORS.rose, COLORS.emerald],
+          data: [5000, 3000, 100, 1500, 200, 50, 30],
+          backgroundColor: [COLORS.indigo, COLORS.violet, COLORS.rose, COLORS.emerald, COLORS.cyan, COLORS.amber, '#a78bfa'],
           borderRadius: 3,
-          barThickness: 20
+          barThickness: 18
         }]
       },
       options: {
